@@ -17,8 +17,14 @@ resource "libvirt_volume" "test_ubuntu" {
   name           = "test_ubuntu.qcow2"
   size = 10000000000
 }
-resource "libvirt_domain" "default" {
-    name = "testvm-ubuntu1"
+
+# sample of using a drive as a base
+resource "libvirt_volume" "server1" {
+  name           = "server1.qcow2"
+  base_volume_id = libvirt_volume.test_ubuntu.id
+}
+resource "libvirt_domain" "server1" {
+    name = "ubuntu-server1"
     vcpu = 2
     memory = 2048
     running = true 
@@ -26,7 +32,26 @@ resource "libvirt_domain" "default" {
     #     volume_id = libvirt_volume.ubuntu_focal_server.id
     # }
     disk {
-      volume_id = libvirt_volume.test_ubuntu.id
+      volume_id = libvirt_volume.server1.id
+    }
+    network_interface {
+      bridge = "virbr0"
+    }
+}
+resource "libvirt_volume" "server2" {
+  name           = "server2.qcow2"
+  base_volume_id = libvirt_volume.test_ubuntu.id
+}
+resource "libvirt_domain" "server2" {
+    name = "ubuntu-server2"
+    vcpu = 2
+    memory = 2048
+    running = true 
+    # disk {
+    #     volume_id = libvirt_volume.ubuntu_focal_server.id
+    # }
+    disk {
+      volume_id = libvirt_volume.server2.id
     }
     network_interface {
       bridge = "virbr0"
